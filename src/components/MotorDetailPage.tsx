@@ -496,6 +496,64 @@ const MotorDetailPage: React.FC<MotorDetailPageProps> = ({ motorId }) => {
               </button>
             </div>
 
+            {/* restore cost in mobile */}
+            {formData.status === 'in_progress' && <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-6 lg:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">Restoration Costs</h2>
+                    <p className="text-gray-600">Track expenses and payments</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-6">
+                {costs.length > 0 && (
+                  <button
+                    onClick={handleClearAllPayments}
+                    disabled={clearingPayments}
+                    className="flex items-center gap-2 px-3 py-2 text-white bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 disabled:opacity-50 text-sm"
+                  >
+                    <CreditCard className="w-4 h-4" />
+                    <span>{clearingPayments ? 'Clearing...' : 'Clear All'}</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowAddCostModal(true)}
+                  className="flex items-center gap-2 px-3 py-2 text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Cost</span>
+                </button>
+              </div>
+
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {costs.length > 0 ? (
+                  costs.map((cost) => (
+                    <CostCard
+                      key={cost.id}
+                      cost={cost}
+                      onUpdate={loadMotorData}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">No restoration costs recorded</p>
+                    <button
+                      onClick={() => setShowAddCostModal(true)}
+                      className="text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Add your first cost
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>}
+
             {/* Motor Details Card */}
             <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-6 lg:p-8">
               <div className="flex items-center gap-3 mb-6">
@@ -797,7 +855,7 @@ const MotorDetailPage: React.FC<MotorDetailPageProps> = ({ motorId }) => {
             </div>
 
             {/* Restoration Costs */}
-            <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-6 lg:p-8">
+            {formData.status !== 'in_progress' && <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 p-6 lg:p-8">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
@@ -852,7 +910,7 @@ const MotorDetailPage: React.FC<MotorDetailPageProps> = ({ motorId }) => {
                   </div>
                 )}
               </div>
-            </div>
+            </div>}
           </div>
         </div>
 
