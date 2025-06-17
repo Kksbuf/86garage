@@ -19,14 +19,22 @@ import { User, Motor, RestoreCost } from '@/types';
 // User operations
 export const createUser = async (userData: Omit<User, 'createdAt' | 'updatedAt'>) => {
   const userRef = doc(db, 'users', userData.uid);
-  const now = new Date();
+  const userSnap = await getDoc(userRef); // <--- ADD THIS LINE
 
-  await setDoc(userRef, {
-    ...userData,
-    verified: false,
-    createdAt: Timestamp.fromDate(now),
-    updatedAt: Timestamp.fromDate(now),
-  });
+  if (!userSnap.exists()) { // <--- ADD THIS CONDITION
+    const now = new Date();
+    
+    await setDoc(userRef, {
+      ...userData,
+      verified: false,
+      createdAt: Timestamp.fromDate(now),
+      updatedAt: Timestamp.fromDate(now),
+    });
+  } else {
+    // Optional: You can add logic here to update existing user data if needed,
+    // but the user specifically asked not to rewrite, so we'll do nothing for now.
+    console.log('User document already exists, not rewriting.');
+  }
 };
 
 export const getUser = async (uid: string): Promise<User | null> => {

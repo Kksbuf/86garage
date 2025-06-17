@@ -6,8 +6,8 @@ import { AuthProvider } from '@/hooks/useAuth';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: '86 Garage - Motor Restoration History',
-  description: 'Track your motor restoration projects and costs',
+  title: '86 Garage',
+  description: 'Motor restoration projects and costs',
 };
 
 export default function RootLayout({
