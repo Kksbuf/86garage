@@ -70,6 +70,7 @@ export const createMotor = async (motorData: Omit<Motor, 'id' | 'createdAt' | 'u
     listingDate: motorData.listingDate ? Timestamp.fromDate(motorData.listingDate) : null,
     soldDate: motorData.soldDate ? Timestamp.fromDate(motorData.soldDate) : null,
     paidBy: motorData.paidBy || null,
+    year: motorData.year || null,
     restoreCost: 0,
     createdAt: Timestamp.fromDate(now),
     updatedAt: Timestamp.fromDate(now),
@@ -157,8 +158,11 @@ export const updateMotor = async (motorId: string, updates: Partial<Motor>) => {
   if (updates.soldDate) {
     updateData.soldDate = Timestamp.fromDate(updates.soldDate);
   }
-  if (updates.paidBy !== undefined) { // <--- ADD THIS BLOCK
+  if (updates.paidBy !== undefined) { 
     updateData.paidBy = updates.paidBy || null;
+  }
+  if (updates.year !== undefined) { 
+    updateData.year = updates.year || null;
   }
 
   await updateDoc(motorRef, updateData);

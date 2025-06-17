@@ -138,7 +138,7 @@ const MotorCard: React.FC<MotorCardProps> = ({ motor, costs }) => {
               <div className="flex items-center gap-3 text-sm text-gray-600">
                 <span className="font-medium">{motor.carPlate}</span>
                 <span>•</span>
-                <span>{motor.year}</span>
+                <span>{motor.year ? motor.year : '-'}</span>
               </div>
             </div>
             

@@ -244,7 +244,7 @@ const SummaryPage: React.FC = () => {
                         </span>
                       </div>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{motor.carPlate} • {motor.year}</span>
+                        <span className="text-gray-600">{motor.carPlate} • {motor.year ? motor.year : '-'}</span>
                         <span className="font-semibold text-gray-900">
                           {formatCurrency((motor.boughtInCost || 0) + (motor.restoreCost || 0))}
                         </span>

@@ -42,6 +42,18 @@ interface MotorDetailPageProps {
   motorId: string;
 }
 
+function getWeeksAndDaysSince(date?: Date): string {
+  if (!date) return '';
+  const now = new Date();
+  const then = new Date(date);
+  const diffInMs = now.getTime() - then.getTime();
+  const totalDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  const weeks = Math.floor(totalDays / 7);
+  const days = totalDays % 7;
+  return `(${weeks} week${weeks !== 1 ? 's' : ''} ${days} day${days !== 1 ? 's' : ''})`;
+}
+
+
 const MotorDetailPage: React.FC<MotorDetailPageProps> = ({ motorId }) => {
   const router = useRouter();
   const [motor, setMotor] = useState<Motor | null>(null);
@@ -217,6 +229,8 @@ const MotorDetailPage: React.FC<MotorDetailPageProps> = ({ motorId }) => {
     }
   };
 
+
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-MY', {
       style: 'currency',
@@ -377,7 +391,7 @@ const MotorDetailPage: React.FC<MotorDetailPageProps> = ({ motorId }) => {
                   {motor.name}
                 </h1>
                 <div className="flex items-center gap-3 text-sm text-gray-600">
-                  <span className="font-medium">{motor.carPlate} • {motor.year}</span>
+                  <span className="font-medium">{motor.carPlate} • {motor.year ? motor.year : '-'}</span>
                   <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${statusInfo.color}`}>
                     {statusInfo.icon}
                     <span>{statusInfo.status}</span>
@@ -508,7 +522,14 @@ const MotorDetailPage: React.FC<MotorDetailPageProps> = ({ motorId }) => {
                     <Calendar className="w-5 h-5 text-gray-600" />
                     <div>
                       <label className="block text-sm font-medium text-gray-700">Year</label>
-                      <p className="text-lg font-semibold text-gray-900">{motor.year}</p>
+                      <p className="text-lg font-semibold text-gray-900">{motor.year ? motor.year : '-'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                    <DollarSign className="w-5 h-5 text-gray-600" />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Payment</label>
+                      <p className="text-lg font-semibold text-gray-900">{motor.clear ? 'Clear' : 'Pending'}</p>
                     </div>
                   </div>
                 </div>
@@ -521,13 +542,14 @@ const MotorDetailPage: React.FC<MotorDetailPageProps> = ({ motorId }) => {
                       <p className="text-lg font-semibold text-gray-900">{motor.previousOwner}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl"> {/* <--- ADD THIS NEW DIV */} 
-                  <CreditCard className="w-5 h-5 text-gray-600" />
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Paid By</label>
-                    <p className="text-lg font-semibold text-gray-900">{motor.paidBy || 'N/A'}</p>
+                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl"> {/* <--- ADD THIS NEW DIV */}
+                    <CreditCard className="w-5 h-5 text-gray-600" />
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">Paid By</label>
+                      <p className="text-lg font-semibold text-gray-900">{motor.paidBy || 'N/A'}</p>
+                    </div>
+
                   </div>
-                </div>
 
                   <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
                     <div className="w-5 h-5 flex items-center justify-center">
@@ -630,7 +652,10 @@ const MotorDetailPage: React.FC<MotorDetailPageProps> = ({ motorId }) => {
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       ) : (
-                        <p className="text-gray-600">{formatDate(motor.boughtInDate)}</p>
+                        <p className="text-gray-600">
+                          {formatDate(motor.boughtInDate)}{' '}
+                          {!motor.changedName && getWeeksAndDaysSince(motor.boughtInDate)}
+                        </p>
                       )}
                     </div>
                   </div>

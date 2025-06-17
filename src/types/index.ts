@@ -12,7 +12,7 @@ export interface Motor {
   id: string;
   carPlate: string;
   name: string;
-  year: number;
+  year?: number;
   previousOwner: string;
   boughtInDate?: Date;
   listingDate?: Date;
@@ -25,6 +25,7 @@ export interface Motor {
   restoreCost: number;
   primaryImageIndex?: number; // Index of the primary image to display in motor cards
   paidBy?: 'dh' | 'ks' | 'zc';
+  clear: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

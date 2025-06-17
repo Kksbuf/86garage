@@ -25,6 +25,7 @@ const EditMotorModal: React.FC<EditMotorModalProps> = ({ motor, onClose, onMotor
     boughtInDate: motor.boughtInDate ? motor.boughtInDate.toISOString().split('T')[0] : '',
     boughtInCost: motor.boughtInCost?.toString() || '',
     changedName: motor.changedName,
+    clear: motor.clear,
     paidBy: motor.paidBy || "" as "dh" | "ks" | "zc" | "", // <--- UPDATE THIS LINE
   });
 
@@ -42,6 +43,7 @@ const EditMotorModal: React.FC<EditMotorModalProps> = ({ motor, onClose, onMotor
         boughtInDate: formData.boughtInDate ? new Date(formData.boughtInDate) : undefined,
         boughtInCost: formData.boughtInCost ? parseFloat(formData.boughtInCost) : undefined,
         changedName: formData.changedName,
+        clear: formData.clear,
         paidBy: formData.paidBy === "" ? undefined : formData.paidBy, // <--- ADD THIS LINE
       };
 
@@ -141,17 +143,17 @@ const EditMotorModal: React.FC<EditMotorModalProps> = ({ motor, onClose, onMotor
 
           <div>
             <label htmlFor="year" className="block text-sm font-semibold text-gray-700 mb-2">
-              Year *
+              Year 
             </label>
             <input
               type="number"
               id="year"
               name="year"
-              value={formData.year}
+              value={formData.year??''}
               onChange={handleChange}
-              required
-              min="1900"
-              max={new Date().getFullYear() + 1}
+              // required
+              // min="1900"
+              // max={new Date().getFullYear() + 1}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
             />
           </div>
@@ -215,6 +217,19 @@ const EditMotorModal: React.FC<EditMotorModalProps> = ({ motor, onClose, onMotor
             />
             <label htmlFor="changedName" className="ml-3 block text-sm font-medium text-gray-700">
               Name has been changed
+            </label>
+          </div>
+          <div className="flex items-center p-4 bg-gray-50 rounded-xl">
+            <input
+              type="checkbox"
+              id="clear"
+              name="clear"
+              checked={formData.clear}
+              onChange={handleChange}
+              className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded transition-all duration-200"
+            />
+            <label htmlFor="clear" className="ml-3 block text-sm font-medium text-gray-700">
+              Payment Clear
             </label>
           </div>
 

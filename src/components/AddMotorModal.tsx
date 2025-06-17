@@ -17,10 +17,11 @@ const AddMotorModal: React.FC<AddMotorModalProps> = ({ onClose, onMotorAdded }) 
     carPlate: '',
     name: '',
     previousOwner: '',
-    year: new Date().getFullYear(),
+    year: undefined,
     boughtInDate: '',
     boughtInCost: '',
-    paidBy: "" as "dh" | "ks" | "zc" | "", 
+    paidBy: "" as "dh" | "ks" | "zc" | "",
+    clear: false,
     changedName: false,
   });
 
@@ -30,16 +31,17 @@ const AddMotorModal: React.FC<AddMotorModalProps> = ({ onClose, onMotorAdded }) 
 
     try {
       setLoading(true);
-      
+
       const motorData = {
         carPlate: formData.carPlate,
         name: formData.name,
         previousOwner: formData.previousOwner,
-        year: formData.year,
+        year: formData.year ? formData.year : undefined,
         boughtInDate: formData.boughtInDate ? new Date(formData.boughtInDate) : undefined,
         boughtInCost: formData.boughtInCost ? parseFloat(formData.boughtInCost) : undefined,
         changedName: formData.changedName,
         paidBy: formData.paidBy === "" ? undefined : formData.paidBy, // <--- ADD THIS LINE
+        clear: formData.clear, // <--- ADD THIS LINE
         images: [],
         videos: [],
       };
@@ -127,7 +129,7 @@ const AddMotorModal: React.FC<AddMotorModalProps> = ({ onClose, onMotorAdded }) 
 
           <div>
             <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
-              Year *
+              Year
             </label>
             <input
               type="number"
@@ -135,9 +137,9 @@ const AddMotorModal: React.FC<AddMotorModalProps> = ({ onClose, onMotorAdded }) 
               name="year"
               value={formData.year}
               onChange={handleChange}
-              required
-              min="1900"
-              max={new Date().getFullYear() + 1}
+              // required
+              // min="1900"
+              // max={new Date().getFullYear() + 1}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
@@ -172,23 +174,23 @@ const AddMotorModal: React.FC<AddMotorModalProps> = ({ onClose, onMotorAdded }) 
               placeholder="0.00"
             />
           </div>
-          <div> {/* <--- ADD THIS NEW DIV */} 
-          <label htmlFor="paidBy" className="block text-sm font-semibold text-gray-700 mb-2">
-            Paid By
-          </label>
-          <select
-            id="paidBy"
-            name="paidBy"
-            value={formData.paidBy}
-            onChange={handleChange}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-all duration-200 hover:bg-gray-50"
-          >
-            <option value="">Select Payer</option>
-            <option value="dh">dh</option>
-            <option value="ks">ks</option>
-            <option value="zc">zc</option>
-          </select>
-        </div>
+          <div> {/* <--- ADD THIS NEW DIV */}
+            <label htmlFor="paidBy" className="block text-sm font-semibold text-gray-700 mb-2">
+              Paid By
+            </label>
+            <select
+              id="paidBy"
+              name="paidBy"
+              value={formData.paidBy}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-all duration-200 hover:bg-gray-50"
+            >
+              <option value="">Select Payer</option>
+              <option value="dh">dh</option>
+              <option value="ks">ks</option>
+              <option value="zc">zc</option>
+            </select>
+          </div>
 
 
           <div className="flex items-center">
@@ -202,6 +204,19 @@ const AddMotorModal: React.FC<AddMotorModalProps> = ({ onClose, onMotorAdded }) 
             />
             <label htmlFor="changedName" className="ml-2 block text-sm text-gray-700">
               Name has been changed
+            </label>
+          </div>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="clear"
+              name="clear"
+              checked={formData.clear}
+              onChange={handleChange}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="clear" className="ml-2 block text-sm text-gray-700">
+              Payment Clear
             </label>
           </div>
 
