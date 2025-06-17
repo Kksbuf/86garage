@@ -23,6 +23,7 @@ export interface Motor {
   images: string[];
   videos: string[];
   primaryImageIndex?: number; // Index of the primary image to display in motor cards
+  paidBy?: 'dh' | 'ks' | 'zc';
   createdAt: Date;
   updatedAt: Date;
 }

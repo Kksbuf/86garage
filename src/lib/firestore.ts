@@ -20,7 +20,7 @@ import { User, Motor, RestoreCost } from '@/types';
 export const createUser = async (userData: Omit<User, 'createdAt' | 'updatedAt'>) => {
   const userRef = doc(db, 'users', userData.uid);
   const now = new Date();
-  
+
   await setDoc(userRef, {
     ...userData,
     verified: false,
@@ -32,7 +32,7 @@ export const createUser = async (userData: Omit<User, 'createdAt' | 'updatedAt'>
 export const getUser = async (uid: string): Promise<User | null> => {
   const userRef = doc(db, 'users', uid);
   const userSnap = await getDoc(userRef);
-  
+
   if (userSnap.exists()) {
     const data = userSnap.data();
     return {
@@ -41,7 +41,7 @@ export const getUser = async (uid: string): Promise<User | null> => {
       updatedAt: data.updatedAt.toDate(),
     } as User;
   }
-  
+
   return null;
 };
 
@@ -61,10 +61,11 @@ export const createMotor = async (motorData: Omit<Motor, 'id' | 'createdAt' | 'u
     boughtInDate: motorData.boughtInDate ? Timestamp.fromDate(motorData.boughtInDate) : null,
     listingDate: motorData.listingDate ? Timestamp.fromDate(motorData.listingDate) : null,
     soldDate: motorData.soldDate ? Timestamp.fromDate(motorData.soldDate) : null,
+    paidBy: motorData.paidBy || null,
     createdAt: Timestamp.fromDate(now),
     updatedAt: Timestamp.fromDate(now),
   });
-  
+
   return motorRef.id;
 };
 
@@ -73,7 +74,7 @@ export const getMotors = async (): Promise<Motor[]> => {
     collection(db, 'motors'),
     orderBy('createdAt', 'desc')
   );
-  
+
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => {
     const data = doc.data();
@@ -94,7 +95,7 @@ export const getMotorsByUser = async (): Promise<Motor[]> => {
     collection(db, 'motors'),
     orderBy('createdAt', 'desc')
   );
-  
+
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => {
     const data = doc.data();
@@ -113,7 +114,7 @@ export const getMotorsByUser = async (): Promise<Motor[]> => {
 export const getMotor = async (motorId: string): Promise<Motor | null> => {
   const motorRef = doc(db, 'motors', motorId);
   const motorSnap = await getDoc(motorRef);
-  
+
   if (motorSnap.exists()) {
     const data = motorSnap.data();
     return {
@@ -126,7 +127,7 @@ export const getMotor = async (motorId: string): Promise<Motor | null> => {
       updatedAt: data.updatedAt.toDate(),
     } as Motor;
   }
-  
+
   return null;
 };
 
@@ -136,7 +137,7 @@ export const updateMotor = async (motorId: string, updates: Partial<Motor>) => {
     ...updates,
     updatedAt: Timestamp.fromDate(new Date()),
   };
-  
+
   // Convert dates to Timestamps
   if (updates.boughtInDate) {
     updateData.boughtInDate = Timestamp.fromDate(updates.boughtInDate);
@@ -147,7 +148,10 @@ export const updateMotor = async (motorId: string, updates: Partial<Motor>) => {
   if (updates.soldDate) {
     updateData.soldDate = Timestamp.fromDate(updates.soldDate);
   }
-  
+  if (updates.paidBy !== undefined) { // <--- ADD THIS BLOCK
+    updateData.paidBy = updates.paidBy || null;
+  }
+
   await updateDoc(motorRef, updateData);
 };
 
@@ -157,19 +161,19 @@ export const deleteMotor = async (motorId: string) => {
     collection(db, 'restoreCosts'),
     where('motorId', '==', motorId)
   );
-  
+
   const costsSnapshot = await getDocs(costsQuery);
   const batch = writeBatch(db);
-  
+
   // Add all cost deletions to batch
   costsSnapshot.docs.forEach((doc) => {
     batch.delete(doc.ref);
   });
-  
+
   // Add motor deletion to batch
   const motorRef = doc(db, 'motors', motorId);
   batch.delete(motorRef);
-  
+
   // Execute batch
   await batch.commit();
 };
@@ -178,10 +182,10 @@ export const deleteMotor = async (motorId: string) => {
 export const deleteImageFromMotor = async (motorId: string, imageUrl: string) => {
   const motor = await getMotor(motorId);
   if (!motor) throw new Error('Motor not found');
-  
+
   const updatedImages = motor.images.filter(img => img !== imageUrl);
   let updatedPrimaryIndex = motor.primaryImageIndex;
-  
+
   // Adjust primary image index if necessary
   if (motor.primaryImageIndex !== undefined) {
     const deletedIndex = motor.images.indexOf(imageUrl);
@@ -195,8 +199,8 @@ export const deleteImageFromMotor = async (motorId: string, imageUrl: string) =>
       }
     }
   }
-  
-  await updateMotor(motorId, { 
+
+  await updateMotor(motorId, {
     images: updatedImages,
     primaryImageIndex: updatedPrimaryIndex
   });
@@ -205,7 +209,7 @@ export const deleteImageFromMotor = async (motorId: string, imageUrl: string) =>
 export const deleteVideoFromMotor = async (motorId: string, videoUrl: string) => {
   const motor = await getMotor(motorId);
   if (!motor) throw new Error('Motor not found');
-  
+
   const updatedVideos = motor.videos.filter(vid => vid !== videoUrl);
   await updateMotor(motorId, { videos: updatedVideos });
 };
@@ -223,7 +227,7 @@ export const createRestoreCost = async (costData: Omit<RestoreCost, 'id' | 'crea
     createdAt: Timestamp.fromDate(now),
     updatedAt: Timestamp.fromDate(now),
   });
-  
+
   return costRef.id;
 };
 
@@ -233,7 +237,7 @@ export const getRestoreCostsByMotor = async (motorId: string): Promise<RestoreCo
     where('motorId', '==', motorId),
     orderBy('date', 'desc')
   );
-  
+
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => {
     const data = doc.data();
@@ -253,11 +257,11 @@ export const updateRestoreCost = async (costId: string, updates: Partial<Restore
     ...updates,
     updatedAt: Timestamp.fromDate(new Date()),
   };
-  
+
   if (updates.date) {
     updateData.date = Timestamp.fromDate(updates.date);
   }
-  
+
   await updateDoc(costRef, updateData);
 };
 
@@ -271,17 +275,17 @@ export const clearAllPayments = async (motorId: string) => {
     collection(db, 'restoreCosts'),
     where('motorId', '==', motorId)
   );
-  
+
   const costsSnapshot = await getDocs(costsQuery);
   const batch = writeBatch(db);
-  
+
   costsSnapshot.docs.forEach((doc) => {
     batch.update(doc.ref, {
       paymentClear: true,
       updatedAt: Timestamp.fromDate(new Date()),
     });
   });
-  
+
   await batch.commit();
 };
 

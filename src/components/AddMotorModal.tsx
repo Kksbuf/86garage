@@ -20,6 +20,7 @@ const AddMotorModal: React.FC<AddMotorModalProps> = ({ onClose, onMotorAdded }) 
     year: new Date().getFullYear(),
     boughtInDate: '',
     boughtInCost: '',
+    paidBy: "" as "dh" | "ks" | "zc" | "", 
     changedName: false,
   });
 
@@ -38,6 +39,7 @@ const AddMotorModal: React.FC<AddMotorModalProps> = ({ onClose, onMotorAdded }) 
         boughtInDate: formData.boughtInDate ? new Date(formData.boughtInDate) : undefined,
         boughtInCost: formData.boughtInCost ? parseFloat(formData.boughtInCost) : undefined,
         changedName: formData.changedName,
+        paidBy: formData.paidBy === "" ? undefined : formData.paidBy, // <--- ADD THIS LINE
         images: [],
         videos: [],
       };
@@ -170,6 +172,24 @@ const AddMotorModal: React.FC<AddMotorModalProps> = ({ onClose, onMotorAdded }) 
               placeholder="0.00"
             />
           </div>
+          <div> {/* <--- ADD THIS NEW DIV */} 
+          <label htmlFor="paidBy" className="block text-sm font-semibold text-gray-700 mb-2">
+            Paid By
+          </label>
+          <select
+            id="paidBy"
+            name="paidBy"
+            value={formData.paidBy}
+            onChange={handleChange}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-all duration-200 hover:bg-gray-50"
+          >
+            <option value="">Select Payer</option>
+            <option value="dh">dh</option>
+            <option value="ks">ks</option>
+            <option value="zc">zc</option>
+          </select>
+        </div>
+
 
           <div className="flex items-center">
             <input

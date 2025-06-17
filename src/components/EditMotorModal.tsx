@@ -25,6 +25,7 @@ const EditMotorModal: React.FC<EditMotorModalProps> = ({ motor, onClose, onMotor
     boughtInDate: motor.boughtInDate ? motor.boughtInDate.toISOString().split('T')[0] : '',
     boughtInCost: motor.boughtInCost?.toString() || '',
     changedName: motor.changedName,
+    paidBy: motor.paidBy || "" as "dh" | "ks" | "zc" | "", // <--- UPDATE THIS LINE
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,6 +42,7 @@ const EditMotorModal: React.FC<EditMotorModalProps> = ({ motor, onClose, onMotor
         boughtInDate: formData.boughtInDate ? new Date(formData.boughtInDate) : undefined,
         boughtInCost: formData.boughtInCost ? parseFloat(formData.boughtInCost) : undefined,
         changedName: formData.changedName,
+        paidBy: formData.paidBy === "" ? undefined : formData.paidBy, // <--- ADD THIS LINE
       };
 
       await updateMotor(motor.id, updates);
@@ -183,6 +185,24 @@ const EditMotorModal: React.FC<EditMotorModalProps> = ({ motor, onClose, onMotor
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
             />
           </div>
+          <div> {/* <--- ADD THIS NEW DIV */}
+            <label htmlFor="paidBy" className="block text-sm font-semibold text-gray-700 mb-2">
+              Paid By
+            </label>
+            <select
+              id="paidBy"
+              name="paidBy"
+              value={formData.paidBy}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-all duration-200 hover:bg-gray-50"
+            >
+              <option value="">Select Payer</option>
+              <option value="dh">dh</option>
+              <option value="ks">ks</option>
+              <option value="zc">zc</option>
+            </select>
+          </div>
+
 
           <div className="flex items-center p-4 bg-gray-50 rounded-xl">
             <input
