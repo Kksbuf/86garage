@@ -18,6 +18,26 @@ const HomePage: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "in_progress" | "listing" | "sold">("all");
+
+
+
+  const filteredMotors = motors.filter((motor) => {
+    const matchesSearch =
+      motor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      motor.carPlate.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus =
+      filterStatus === "all" ||
+      (filterStatus === "in_progress" && !motor.listingDate && !motor.soldDate) ||
+      (filterStatus === "listing" && motor.listingDate && !motor.soldDate) ||
+      (filterStatus === "sold" && motor.soldDate);
+
+
+    return matchesSearch && matchesStatus;
+  });
+
   useEffect(() => {
     if (user) {
       loadMotors();
@@ -26,7 +46,7 @@ const HomePage: React.FC = () => {
 
   const loadMotors = async () => {
     if (!user) return;
-    
+
     try {
       setLoading(true);
       const userMotors = await getMotorsByUser();
@@ -80,7 +100,7 @@ const HomePage: React.FC = () => {
                 <p className="text-sm lg:text-base text-gray-600 hidden sm:block">Motor Restoration History</p>
               </div>
             </div>
-            
+
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-6">
               <div className="text-right">
@@ -177,6 +197,28 @@ const HomePage: React.FC = () => {
             </p>
           </div>
 
+          {/* Search and Filter Section */}
+          <div className="mb-8 p-6 bg-white/70 backdrop-blur-sm rounded-3xl shadow-xl border border-gray-200/50 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <input
+              type="text"
+              placeholder="Search by name or car plate..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+            />
+
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value as "all" | "in_progress" | "listing" | "sold")}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 hover:bg-white transition-all duration-200"
+            >
+              <option value="all">All Statuses</option>
+              <option value="in_progress">In Progress</option>
+              <option value="listing">Listed</option>
+              <option value="sold">Sold</option>
+            </select>
+          </div>
+
           {/* Stats Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
             <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 lg:p-6 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300">
@@ -232,7 +274,7 @@ const HomePage: React.FC = () => {
               <p className="text-lg text-gray-600">Loading your motors...</p>
             </div>
           </div>
-        ) : motors.length === 0 ? (
+        ) : filteredMotors.length === 0 ? (
           <div className="text-center py-16 lg:py-24">
             <div className="bg-white/70 backdrop-blur-sm rounded-3xl p-8 lg:p-12 shadow-xl border border-gray-200/50 max-w-md mx-auto">
               <div className="w-20 h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -253,7 +295,7 @@ const HomePage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
-            {motors.map((motor) => (
+            {filteredMotors.map((motor) => (
               <MotorCard key={motor.id} motor={motor} />
             ))}
           </div>

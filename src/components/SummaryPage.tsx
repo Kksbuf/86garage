@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { getMotors } from '@/lib/firestore';
 import { Motor } from '@/types';
-import { 
-  ArrowLeft, 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
+import {
+  ArrowLeft,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
   Car,
   BarChart3,
   PieChart,
@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   AlertTriangle
 } from 'lucide-react';
+import Link from 'next/link';
 
 const SummaryPage: React.FC = () => {
   const router = useRouter();
@@ -170,9 +171,8 @@ const SummaryPage: React.FC = () => {
 
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-4 lg:p-6 shadow-lg border border-gray-200/50 hover:shadow-xl transition-all duration-300">
             <div className="flex items-center gap-3 mb-3">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                stats.totalProfit >= 0 ? 'bg-green-100' : 'bg-red-100'
-              }`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stats.totalProfit >= 0 ? 'bg-green-100' : 'bg-red-100'
+                }`}>
                 {stats.totalProfit >= 0 ? (
                   <TrendingUp className="w-5 h-5 text-green-600" />
                 ) : (
@@ -180,9 +180,8 @@ const SummaryPage: React.FC = () => {
                 )}
               </div>
               <div>
-                <div className={`text-lg lg:text-xl font-bold ${
-                  stats.totalProfit >= 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
+                <div className={`text-lg lg:text-xl font-bold ${stats.totalProfit >= 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
                   {stats.totalProfit >= 0 ? '+' : ''}{formatCurrency(stats.totalProfit)}
                 </div>
                 <div className="text-sm text-gray-600">Total Profit</div>
@@ -226,31 +225,32 @@ const SummaryPage: React.FC = () => {
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {currentHoldings.length > 0 ? (
                 currentHoldings.map((motor) => (
-                  <div key={motor.id} className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-semibold text-gray-900">{motor.name}</h3>
-                        {motor.changedName ? (
-                          <CheckCircle2 className="w-4 h-4 text-green-600" />
-                        ) : (
-                          <AlertTriangle className="w-4 h-4 text-orange-600" />
-                        )}
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        motor.listingDate 
-                          ? 'bg-yellow-100 text-yellow-800' 
+                  <Link key={motor.id} href={`/motor/${motor.id}`}>
+                    <div key={motor.id} className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <h3 className="font-semibold text-gray-900">{motor.name}</h3>
+                          {motor.changedName ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <AlertTriangle className="w-4 h-4 text-orange-600" />
+                          )}
+                        </div>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${motor.listingDate
+                          ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-blue-100 text-blue-800'
-                      }`}>
-                        {motor.listingDate ? 'Listed' : 'In Progress'}
-                      </span>
+                          }`}>
+                          {motor.listingDate ? 'Listed' : 'In Progress'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">{motor.carPlate} • {motor.year}</span>
+                        <span className="font-semibold text-gray-900">
+                          {formatCurrency(motor.boughtInCost || 0)}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">{motor.carPlate} • {motor.year}</span>
-                      <span className="font-semibold text-gray-900">
-                        {formatCurrency(motor.boughtInCost || 0)}
-                      </span>
-                    </div>
-                  </div>
+                  </Link>
                 ))
               ) : (
                 <div className="text-center py-8">
@@ -286,9 +286,8 @@ const SummaryPage: React.FC = () => {
                     <div className="text-xs text-gray-600">Total Revenue</div>
                   </div>
                   <div className="text-center">
-                    <div className={`text-lg font-bold ${
-                      stats.totalProfit >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}>
+                    <div className={`text-lg font-bold ${stats.totalProfit >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
                       {stats.totalProfit >= 0 ? '+' : ''}{formatCurrency(stats.totalProfit)}
                     </div>
                     <div className="text-xs text-gray-600">Net Profit</div>
@@ -303,34 +302,36 @@ const SummaryPage: React.FC = () => {
                 soldMotors.map((motor) => {
                   const profit = (motor.soldPrice || 0) - (motor.boughtInCost || 0);
                   return (
-                    <div key={motor.id} className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-semibold text-gray-900">{motor.name}</h3>
-                          {motor.changedName ? (
-                            <CheckCircle2 className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <AlertTriangle className="w-4 h-4 text-orange-600" />
-                          )}
+                    <Link key={motor.id} href={`/motor/${motor.id}`}>
+                      <div key={motor.id} className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <h3 className="font-semibold text-gray-900">{motor.name}</h3>
+                            {motor.changedName ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <AlertTriangle className="w-4 h-4 text-orange-600" />
+                            )}
+                          </div>
+                          <div className={`flex items-center gap-1 text-sm font-semibold ${profit >= 0 ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                            {profit >= 0 ? (
+                              <TrendingUp className="w-4 h-4" />
+                            ) : (
+                              <TrendingDown className="w-4 h-4" />
+                            )}
+                            <span>{profit >= 0 ? '+' : ''}{formatCurrency(profit)}</span>
+                          </div>
                         </div>
-                        <div className={`flex items-center gap-1 text-sm font-semibold ${
-                          profit >= 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {profit >= 0 ? (
-                            <TrendingUp className="w-4 h-4" />
-                          ) : (
-                            <TrendingDown className="w-4 h-4" />
-                          )}
-                          <span>{profit >= 0 ? '+' : ''}{formatCurrency(profit)}</span>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-gray-600">{motor.carPlate} • {formatDate(motor.soldDate)}</span>
+                          <span className="font-semibold text-gray-900">
+                            {formatCurrency(motor.soldPrice || 0)}
+                          </span>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{motor.carPlate} • {formatDate(motor.soldDate)}</span>
-                        <span className="font-semibold text-gray-900">
-                          {formatCurrency(motor.soldPrice || 0)}
-                        </span>
-                      </div>
-                    </div>
+                    </Link>
+
                   );
                 })
               ) : (
