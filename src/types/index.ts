@@ -22,6 +22,7 @@ export interface Motor {
   changedName: boolean;
   images: string[];
   videos: string[];
+  restoreCost: number;
   primaryImageIndex?: number; // Index of the primary image to display in motor cards
   paidBy?: 'dh' | 'ks' | 'zc';
   createdAt: Date;

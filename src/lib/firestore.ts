@@ -23,7 +23,7 @@ export const createUser = async (userData: Omit<User, 'createdAt' | 'updatedAt'>
 
   if (!userSnap.exists()) { // <--- ADD THIS CONDITION
     const now = new Date();
-    
+
     await setDoc(userRef, {
       ...userData,
       verified: false,
@@ -70,6 +70,7 @@ export const createMotor = async (motorData: Omit<Motor, 'id' | 'createdAt' | 'u
     listingDate: motorData.listingDate ? Timestamp.fromDate(motorData.listingDate) : null,
     soldDate: motorData.soldDate ? Timestamp.fromDate(motorData.soldDate) : null,
     paidBy: motorData.paidBy || null,
+    restoreCost: 0,
     createdAt: Timestamp.fromDate(now),
     updatedAt: Timestamp.fromDate(now),
   });
@@ -236,6 +237,13 @@ export const createRestoreCost = async (costData: Omit<RestoreCost, 'id' | 'crea
     updatedAt: Timestamp.fromDate(now),
   });
 
+  const motor = await getMotor(costData.motorId);
+  if (motor) {
+    const newRestoreCost = (motor.restoreCost || 0) + costData.amount;
+    await updateMotor(costData.motorId, { restoreCost: newRestoreCost });
+  }
+
+
   return costRef.id;
 };
 
@@ -275,7 +283,22 @@ export const updateRestoreCost = async (costId: string, updates: Partial<Restore
 
 export const deleteRestoreCost = async (costId: string) => {
   const costRef = doc(db, 'restoreCosts', costId);
+
+  // Get the cost data before deleting to determine the motorId and amount
+  const oldCostSnap = await getDoc(costRef);
+  if (!oldCostSnap.exists()) {
+    throw new Error('RestoreCost document not found');
+  }
+  const oldCostData = oldCostSnap.data() as RestoreCost;
+
   await deleteDoc(costRef);
+
+  // Recalculate and update the motor's restoreCost
+  const motorId = oldCostData.motorId;
+  const costs = await getRestoreCostsByMotor(motorId);
+  const newTotalRestoreCost = costs.reduce((total, cost) => total + cost.amount, 0);
+  await updateMotor(motorId, { restoreCost: newTotalRestoreCost });
+
 };
 
 export const clearAllPayments = async (motorId: string) => {

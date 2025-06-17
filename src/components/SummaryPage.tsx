@@ -64,7 +64,7 @@ const SummaryPage: React.FC = () => {
   const soldMotors = motors.filter(m => m.soldDate);
 
   const totalHoldingCost = currentHoldings.reduce((total, motor) => {
-    return total + (motor.boughtInCost || 0);
+    return total + (motor.boughtInCost || 0) + (motor.restoreCost || 0);
   }, 0);
 
   const totalRevenue = soldMotors.reduce((total, motor) => {
@@ -72,7 +72,7 @@ const SummaryPage: React.FC = () => {
   }, 0);
 
   const totalSoldCost = soldMotors.reduce((total, motor) => {
-    return total + (motor.boughtInCost || 0);
+    return total + (motor.boughtInCost || 0) + (motor.restoreCost || 0);
   }, 0);
 
   const totalProfit = totalRevenue - totalSoldCost;
@@ -246,7 +246,7 @@ const SummaryPage: React.FC = () => {
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-600">{motor.carPlate} • {motor.year}</span>
                         <span className="font-semibold text-gray-900">
-                          {formatCurrency(motor.boughtInCost || 0)}
+                          {formatCurrency((motor.boughtInCost || 0) + (motor.restoreCost || 0))}
                         </span>
                       </div>
                     </div>
@@ -300,7 +300,7 @@ const SummaryPage: React.FC = () => {
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {soldMotors.length > 0 ? (
                 soldMotors.map((motor) => {
-                  const profit = (motor.soldPrice || 0) - (motor.boughtInCost || 0);
+                  const profit = (motor.soldPrice || 0) - (motor.boughtInCost || 0) - (motor.restoreCost || 0);
                   return (
                     <Link key={motor.id} href={`/motor/${motor.id}`}>
                       <div key={motor.id} className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors">

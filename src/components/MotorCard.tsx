@@ -32,14 +32,14 @@ const MotorCard: React.FC<MotorCardProps> = ({ motor, costs }) => {
     }).format(amount);
   };
 
-  const calculateTotalRestoreCost = () => {
-    return (costs || []).reduce((total, cost) => total + cost.amount, 0);
-  };
+  // const calculateTotalRestoreCost = () => {
+  //   return (costs || []).reduce((total, cost) => total + cost.amount, 0);
+  // };
 
 
   const calculateTotalCost = () => {
     const boughtInCost = motor.boughtInCost || 0;
-    const restoreCost = calculateTotalRestoreCost();
+    const restoreCost = motor.restoreCost || 0;
     return boughtInCost + restoreCost;
   };
 
@@ -205,7 +205,7 @@ const MotorCard: React.FC<MotorCardProps> = ({ motor, costs }) => {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">Restoration Cost:</span>
-                  <span className="font-semibold text-gray-900">{formatCurrency(calculateTotalRestoreCost())}</span>
+                  <span className="font-semibold text-gray-900">{formatCurrency(motor.restoreCost)}</span>
                 </div>
                 <div className="flex justify-between items-center p-3 bg-blue-50 rounded-xl border border-blue-200">
                   <span className="text-blue-800 font-semibold text-sm">Total Investment:</span>
