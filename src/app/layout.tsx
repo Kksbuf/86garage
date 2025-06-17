@@ -1,13 +1,13 @@
-import { AuthProvider } from '@/context/AuthContext';
-import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import './globals.css';
+import { AuthProvider } from '@/hooks/useAuth';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: '86Garage',
-  description: 'Welcome to 86Garage',
+  title: '86 Garage - Motor Restoration History',
+  description: 'Track your motor restoration projects and costs',
 };
 
 export default function RootLayout({
@@ -18,8 +18,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
 }
+

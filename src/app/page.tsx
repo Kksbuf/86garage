@@ -1,55 +1,14 @@
 'use client';
 
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import React from 'react';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import HomePage from '@/components/HomePage';
 
 export default function Home() {
-  const { user, userData, signOut } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!user) {
-      router.push('/signin');
-      return;
-    }
-
-    if (!userData?.verified) {
-      router.push('/pending-verification');
-    }
-  }, [user, userData, router]);
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      router.push('/signin');
-    } catch (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-
-  if (!user || !userData?.verified) {
-    return null;
-  }
-
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-xl shadow-lg">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Welcome to 86Garage
-          </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            Hello, {userData.name}! 👋
-          </p>
-          <button
-            onClick={handleSignOut}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-    </main>
+    <ProtectedRoute>
+      <HomePage />
+    </ProtectedRoute>
   );
 }
+
