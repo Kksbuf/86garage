@@ -16,7 +16,7 @@ const AddCostModal: React.FC<AddCostModalProps> = ({ motorId, onClose, onCostAdd
     description: '',
     amount: '',
     paidBy: 'dh' as 'dh' | 'ks' | 'zc',
-    date: new Date().toISOString().split('T')[0],
+    // date: new Date().toISOString().split('T')[0],
     paymentClear: false,
   });
 
@@ -31,7 +31,7 @@ const AddCostModal: React.FC<AddCostModalProps> = ({ motorId, onClose, onCostAdd
         description: formData.description,
         amount: parseFloat(formData.amount),
         paidBy: formData.paidBy,
-        date: new Date(formData.date),
+        // date: new Date(formData.date),
         paymentClear: formData.paymentClear,
       };
 
@@ -126,7 +126,7 @@ const AddCostModal: React.FC<AddCostModalProps> = ({ motorId, onClose, onCostAdd
             </select>
           </div>
 
-          <div>
+          {/* <div>
             <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
               Date *
             </label>
@@ -139,7 +139,7 @@ const AddCostModal: React.FC<AddCostModalProps> = ({ motorId, onClose, onCostAdd
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-          </div>
+          </div> */}
 
           <div className="flex items-center">
             <input

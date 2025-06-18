@@ -232,11 +232,11 @@ export const setPrimaryImage = async (motorId: string, imageIndex: number) => {
 };
 
 // Restore cost operations
-export const createRestoreCost = async (costData: Omit<RestoreCost, 'id' | 'createdAt' | 'updatedAt'>) => {
+export const createRestoreCost = async (costData: Omit<RestoreCost, 'id' | 'createdAt' | 'updatedAt'|'date'>) => {
   const now = new Date();
   const costRef = await addDoc(collection(db, 'restoreCosts'), {
     ...costData,
-    date: Timestamp.fromDate(costData.date),
+    date: Timestamp.fromDate(now),
     createdAt: Timestamp.fromDate(now),
     updatedAt: Timestamp.fromDate(now),
   });

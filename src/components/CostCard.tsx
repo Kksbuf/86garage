@@ -93,10 +93,10 @@ const CostCard: React.FC<CostCardProps> = ({ cost, onUpdate }) => {
               {/* <DollarSign className="w-4 h-4" /> */}
               <span className="font-semibold">{formatCurrency(cost.amount)}</span>
             </div>
-            <div className="flex items-center gap-1">
+            {/* <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4" />
               <span>{formatDate(cost.date)}</span>
-            </div>
+            </div> */}
           </div>
         </div>
         
