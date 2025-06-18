@@ -17,7 +17,8 @@ import {
     Package,
     Search,
     Save,
-    X
+    X,
+    CheckCircle
 } from 'lucide-react';
 
 const InventoryPage: React.FC = () => {
@@ -27,7 +28,7 @@ const InventoryPage: React.FC = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [showAddModal, setShowAddModal] = useState(false);
     const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
-    const [formData, setFormData] = useState({ name: '', quantity: 0 });
+    const [formData, setFormData] = useState({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false }); // <--- UPDATE THIS LINE
 
     useEffect(() => {
         loadInventoryItems();
@@ -53,8 +54,11 @@ const InventoryPage: React.FC = () => {
             await createInventoryItem({
                 name: formData.name.trim(),
                 quantity: formData.quantity,
+                cost: formData.cost,
+                paidBy: formData.paidBy as 'dh' | 'ks' | 'zc',
+                paymentClear: formData.paymentClear
             });
-            setFormData({ name: '', quantity: 0 });
+            setFormData({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false });
             setShowAddModal(false);
             loadInventoryItems();
         } catch (error) {
@@ -71,9 +75,12 @@ const InventoryPage: React.FC = () => {
             await updateInventoryItem(editingItem.id, {
                 name: formData.name.trim(),
                 quantity: formData.quantity,
+                cost: formData.cost,
+                paidBy: formData.paidBy as 'dh' | 'ks' | 'zc',
+                paymentClear: formData.paymentClear
             });
             setEditingItem(null);
-            setFormData({ name: '', quantity: 0 });
+            setFormData({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false });
             loadInventoryItems();
         } catch (error) {
             console.error('Error updating item:', error);
@@ -95,12 +102,13 @@ const InventoryPage: React.FC = () => {
 
     const startEdit = (item: InventoryItem) => {
         setEditingItem(item);
-        setFormData({ name: item.name, quantity: item.quantity });
+
+        setFormData({ name: item.name, quantity: item.quantity, cost: item.cost, paidBy: item.paidBy, paymentClear: item.paymentClear });
     };
 
     const cancelEdit = () => {
         setEditingItem(null);
-        setFormData({ name: '', quantity: 0 });
+        setFormData({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false });
     };
 
     const filteredItems = items.filter(item =>
@@ -231,14 +239,18 @@ const InventoryPage: React.FC = () => {
                     ) : (
                         <div className="overflow-x-auto">
                             <table className="w-full">
-                                <thead className="bg-gray-50/50">
+                                <thead>
                                     <tr>
                                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Name</th>
                                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Quantity</th>
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Cost</th> {/* <--- ADD THIS */}
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Paid By</th> {/* <--- ADD THIS */}
+                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Payment Clear</th> {/* <--- ADD THIS */}
                                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Last Updated</th>
                                         <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">Actions</th>
                                     </tr>
                                 </thead>
+
                                 <tbody className="divide-y divide-gray-200/50">
                                     {filteredItems.map((item) => (
                                         <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
@@ -267,6 +279,50 @@ const InventoryPage: React.FC = () => {
                                                     <span className="text-gray-900">{item.quantity}</span>
                                                 )}
                                             </td>
+                                            
+                                            <td className="px-6 py-4">
+                                                {editingItem?.id === item.id ? (
+                                                    <input
+                                                        type="number"
+                                                        value={formData.cost}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, cost: parseFloat(e.target.value) || 0 }))}
+                                                        min="0"
+                                                        step="0.01"
+                                                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    />
+                                                ) : (
+                                                    <span className="text-gray-900">{item.cost !== undefined ? `RM ${item.cost.toFixed(2)}` : 'N/A'}</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {editingItem?.id === item.id ? (
+                                                    <select
+                                                        value={formData.paidBy}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, paidBy: e.target.value }))}
+                                                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    >
+                                                        <option value="">Select...</option>
+                                                        <option value="dh">dh</option>
+                                                        <option value="ks">ks</option>
+                                                        <option value="zc">zc</option>
+                                                    </select>
+                                                ) : (
+                                                    <span className="text-gray-900">{item.paidBy || 'N/A'}</span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {editingItem?.id === item.id ? (
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={formData.paymentClear}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, paymentClear: e.target.checked }))}
+                                                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                    />
+                                                ) : (
+                                                    item.paymentClear ? <CheckCircle className="w-5 h-5 text-green-500" /> : <X className="w-5 h-5 text-red-500" />
+                                                )}
+                                            </td>
+
                                             <td className="px-6 py-4 text-sm text-gray-600">
                                                 {item.updatedAt.toLocaleDateString('en-MY')}
                                             </td>
@@ -348,6 +404,50 @@ const InventoryPage: React.FC = () => {
                                         placeholder="Enter quantity"
                                     />
                                 </div>
+                                <div>
+                                    <label htmlFor="cost" className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Cost (RM)
+                                    </label>
+                                    <input
+                                        type="number"
+                                        id="cost"
+                                        value={formData.cost}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, cost: parseFloat(e.target.value) || 0 }))}
+                                        min="0"
+                                        step="0.01"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                        placeholder="Enter cost"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="paidBy" className="block text-sm font-semibold text-gray-700 mb-2">
+                                        Paid By
+                                    </label>
+                                    <select
+                                        id="paidBy"
+                                        value={formData.paidBy}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, paidBy: e.target.value }))}
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                    >
+                                        <option value="">Select...</option>
+                                        <option value="dh">dh</option>
+                                        <option value="ks">ks</option>
+                                        <option value="zc">zc</option>
+                                    </select>
+                                </div>
+                                <div className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id="paymentClear"
+                                        checked={formData.paymentClear}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, paymentClear: e.target.checked }))}
+                                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <label htmlFor="paymentClear" className="ml-2 block text-sm font-semibold text-gray-700">
+                                        Payment Clear
+                                    </label>
+                                </div>
+
                                 <div className="flex gap-3 pt-4">
                                     <button
                                         type="button"

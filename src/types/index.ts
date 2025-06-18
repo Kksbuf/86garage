@@ -56,6 +56,9 @@ export interface InventoryItem {
   id: string;
   name: string;
   quantity: number;
+  cost: number; // <--- ADD THIS LINE
+  paidBy: 'dh' | 'ks' | 'zc'; // <--- ADD THIS LINE
+  paymentClear: boolean; // <--- ADD THIS LINE
   createdAt: Date;
   updatedAt: Date;
 }
