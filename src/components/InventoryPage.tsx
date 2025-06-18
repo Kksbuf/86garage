@@ -16,7 +16,6 @@ import {
     Trash2,
     Package,
     Search,
-    Save,
     X,
     CheckCircle
 } from 'lucide-react';
@@ -26,9 +25,9 @@ const InventoryPage: React.FC = () => {
     const [items, setItems] = useState<InventoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-    const [showAddModal, setShowAddModal] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
-    const [formData, setFormData] = useState({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false }); // <--- UPDATE THIS LINE
+    const [formData, setFormData] = useState({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false });
 
     useEffect(() => {
         loadInventoryItems();
@@ -59,7 +58,7 @@ const InventoryPage: React.FC = () => {
                 paymentClear: formData.paymentClear
             });
             setFormData({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false });
-            setShowAddModal(false);
+            setShowModal(false);
             loadInventoryItems();
         } catch (error) {
             console.error('Error adding item:', error);
@@ -81,6 +80,7 @@ const InventoryPage: React.FC = () => {
             });
             setEditingItem(null);
             setFormData({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false });
+            setShowModal(false);
             loadInventoryItems();
         } catch (error) {
             console.error('Error updating item:', error);
@@ -102,13 +102,20 @@ const InventoryPage: React.FC = () => {
 
     const startEdit = (item: InventoryItem) => {
         setEditingItem(item);
-
-        setFormData({ name: item.name, quantity: item.quantity, cost: item.cost, paidBy: item.paidBy, paymentClear: item.paymentClear });
+        setFormData({
+            name: item.name,
+            quantity: item.quantity,
+            cost: item.cost,
+            paidBy: item.paidBy,
+            paymentClear: item.paymentClear
+        });
+        setShowModal(true);
     };
 
     const cancelEdit = () => {
         setEditingItem(null);
         setFormData({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false });
+        setShowModal(false);
     };
 
     const filteredItems = items.filter(item =>
@@ -190,7 +197,10 @@ const InventoryPage: React.FC = () => {
 
                         <div>
                             <button
-                                onClick={() => setShowAddModal(true)}
+                                onClick={() => {
+                                    setFormData({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false });
+                                    setShowModal(true);
+                                }}
                                 className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg"
                             >
                                 <Plus className="w-5 h-5" />
@@ -228,7 +238,10 @@ const InventoryPage: React.FC = () => {
                             </p>
                             {!searchQuery && (
                                 <button
-                                    onClick={() => setShowAddModal(true)}
+                                    onClick={() => {
+                                        setFormData({ name: '', quantity: 0, cost: 0, paidBy: '', paymentClear: false });
+                                        setShowModal(true);
+                                    }}
                                     className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg"
                                 >
                                     <Plus className="w-5 h-5" />
@@ -238,14 +251,64 @@ const InventoryPage: React.FC = () => {
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full">
+                            {/* Mobile View */}
+                            <div className="block md:hidden">
+                                {filteredItems.map((item) => (
+                                    <div key={item.id} className="p-4 border-b border-gray-200/50 hover:bg-gray-50/50 transition-colors">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <div className="space-y-1">
+                                                <div className="font-medium text-gray-900">{item.name}</div>
+                                                <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                                                    <div>RM {item.cost.toFixed(2)}</div>
+                                                    <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-700">
+                                                        {item.paidBy || 'N/A'}
+                                                    </div>
+                                                    {item.paymentClear ? (
+                                                        <span className="inline-flex items-center gap-1 text-green-600">
+                                                            <CheckCircle className="w-4 h-4" />
+                                                            Paid
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1 text-red-600">
+                                                            <X className="w-4 h-4" />
+                                                            Pending
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    onClick={() => startEdit(item)}
+                                                    className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteItem(item.id)}
+                                                    className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-between items-center text-sm">
+                                            <div className="text-gray-900">
+                                                Quantity: <span className="font-medium">{item.quantity}</span>
+                                            </div>
+                                            <div className="text-gray-600">
+                                                {item.updatedAt.toLocaleDateString('en-MY')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Desktop View */}
+                            <table className="hidden md:table w-full">
                                 <thead>
                                     <tr>
                                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Name</th>
                                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Quantity</th>
-                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Cost</th> {/* <--- ADD THIS */}
-                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Paid By</th> {/* <--- ADD THIS */}
-                                        <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Payment Clear</th> {/* <--- ADD THIS */}
                                         <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Last Updated</th>
                                         <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900">Actions</th>
                                     </tr>
@@ -255,109 +318,52 @@ const InventoryPage: React.FC = () => {
                                     {filteredItems.map((item) => (
                                         <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
                                             <td className="px-6 py-4">
-                                                {editingItem?.id === item.id ? (
-                                                    <input
-                                                        type="text"
-                                                        value={formData.name}
-                                                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    />
-                                                ) : (
+                                                <div className="space-y-1">
                                                     <div className="font-medium text-gray-900">{item.name}</div>
-                                                )}
+                                                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                                                        <div>RM {item.cost.toFixed(2)}</div>
+                                                        <div>
+                                                            <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-gray-700">
+                                                                {item.paidBy || 'N/A'}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            {item.paymentClear ? (
+                                                                <span className="inline-flex items-center gap-1 text-green-600">
+                                                                    <CheckCircle className="w-4 h-4" />
+                                                                    Paid
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center gap-1 text-red-600">
+                                                                    <X className="w-4 h-4" />
+                                                                    Pending
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                {editingItem?.id === item.id ? (
-                                                    <input
-                                                        type="number"
-                                                        value={formData.quantity}
-                                                        onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
-                                                        min="0"
-                                                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    />
-                                                ) : (
-                                                    <span className="text-gray-900">{item.quantity}</span>
-                                                )}
+                                                <span className="text-gray-900">{item.quantity}</span>
                                             </td>
-                                            
-                                            <td className="px-6 py-4">
-                                                {editingItem?.id === item.id ? (
-                                                    <input
-                                                        type="number"
-                                                        value={formData.cost}
-                                                        onChange={(e) => setFormData(prev => ({ ...prev, cost: parseFloat(e.target.value) || 0 }))}
-                                                        min="0"
-                                                        step="0.01"
-                                                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    />
-                                                ) : (
-                                                    <span className="text-gray-900">{item.cost !== undefined ? `RM ${item.cost.toFixed(2)}` : 'N/A'}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {editingItem?.id === item.id ? (
-                                                    <select
-                                                        value={formData.paidBy}
-                                                        onChange={(e) => setFormData(prev => ({ ...prev, paidBy: e.target.value }))}
-                                                        className="w-24 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                                    >
-                                                        <option value="">Select...</option>
-                                                        <option value="dh">dh</option>
-                                                        <option value="ks">ks</option>
-                                                        <option value="zc">zc</option>
-                                                    </select>
-                                                ) : (
-                                                    <span className="text-gray-900">{item.paidBy || 'N/A'}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {editingItem?.id === item.id ? (
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={formData.paymentClear}
-                                                        onChange={(e) => setFormData(prev => ({ ...prev, paymentClear: e.target.checked }))}
-                                                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                                    />
-                                                ) : (
-                                                    item.paymentClear ? <CheckCircle className="w-5 h-5 text-green-500" /> : <X className="w-5 h-5 text-red-500" />
-                                                )}
-                                            </td>
-
                                             <td className="px-6 py-4 text-sm text-gray-600">
                                                 {item.updatedAt.toLocaleDateString('en-MY')}
                                             </td>
                                             <td className="px-6 py-4 text-right">
-                                                {editingItem?.id === item.id ? (
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button
-                                                            onClick={handleUpdateItem}
-                                                            className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
-                                                        >
-                                                            <Save className="w-4 h-4" />
-                                                        </button>
-                                                        <button
-                                                            onClick={cancelEdit}
-                                                            className="p-2 text-gray-600 hover:text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button
-                                                            onClick={() => startEdit(item)}
-                                                            className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-                                                        >
-                                                            <Edit className="w-4 h-4" />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDeleteItem(item.id)}
-                                                            className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                                                        >
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                )}
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={() => startEdit(item)}
+                                                        className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                                                    >
+                                                        <Edit className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteItem(item.id)}
+                                                        className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -368,13 +374,15 @@ const InventoryPage: React.FC = () => {
                 </div>
             </main>
 
-            {/* Add Item Modal */}
-            {showAddModal && (
+            {/* Item Modal (Add/Edit) */}
+            {showModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
                         <div className="p-6">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6">Add New Item</h2>
-                            <form onSubmit={handleAddItem} className="space-y-4">
+                            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                                {editingItem ? 'Edit Item' : 'Add New Item'}
+                            </h2>
+                            <form onSubmit={editingItem ? handleUpdateItem : handleAddItem} className="space-y-4">
                                 <div>
                                     <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
                                         Item Name
@@ -451,10 +459,7 @@ const InventoryPage: React.FC = () => {
                                 <div className="flex gap-3 pt-4">
                                     <button
                                         type="button"
-                                        onClick={() => {
-                                            setShowAddModal(false);
-                                            setFormData({ name: '', quantity: 0 });
-                                        }}
+                                        onClick={cancelEdit}
                                         className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 font-medium"
                                     >
                                         Cancel
@@ -463,11 +468,9 @@ const InventoryPage: React.FC = () => {
                                         type="submit"
                                         className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium shadow-lg"
                                     >
-                                        Add Item
+                                        {editingItem ? 'Save Changes' : 'Add Item'}
                                     </button>
-
                                 </div>
-
                             </form>
                         </div>
                     </div>
