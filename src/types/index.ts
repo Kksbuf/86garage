@@ -52,3 +52,10 @@ export interface MediaFile {
   uploadedAt: Date;
 }
 
+export interface InventoryItem {
+  id: string;
+  name: string;
+  quantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+}

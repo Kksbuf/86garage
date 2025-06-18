@@ -14,7 +14,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { User, Motor, RestoreCost } from '@/types';
+import { User, Motor, RestoreCost, InventoryItem } from '@/types';
 
 // User operations
 export const createUser = async (userData: Omit<User, 'createdAt' | 'updatedAt'>) => {
@@ -324,3 +324,43 @@ export const clearAllPayments = async (motorId: string) => {
   await batch.commit();
 };
 
+// Inventory operations
+export const createInventoryItem = async (itemData: Omit<InventoryItem, 'id' | 'createdAt' | 'updatedAt'>) => {
+  const now = new Date();
+  const itemRef = await addDoc(collection(db, 'inventory'), {
+    ...itemData,
+    createdAt: Timestamp.fromDate(now),
+    updatedAt: Timestamp.fromDate(now),
+  });
+  return itemRef.id;
+};
+
+export const getInventoryItems = async (): Promise<InventoryItem[]> => {
+  const q = query(
+    collection(db, 'inventory'),
+    orderBy('createdAt', 'desc')
+  );
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      ...data,
+      createdAt: data.createdAt.toDate(),
+      updatedAt: data.updatedAt.toDate(),
+    } as InventoryItem;
+  });
+};
+
+export const updateInventoryItem = async (itemId: string, updates: Partial<InventoryItem>) => {
+  const itemRef = doc(db, 'inventory', itemId);
+  await updateDoc(itemRef, {
+    ...updates,
+    updatedAt: Timestamp.fromDate(new Date()),
+  });
+};
+
+export const deleteInventoryItem = async (itemId: string) => {
+  const itemRef = doc(db, 'inventory', itemId);
+  await deleteDoc(itemRef);
+};

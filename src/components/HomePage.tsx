@@ -6,9 +6,10 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { getMotorsByUser } from '@/lib/firestore';
 import { Motor } from '@/types';
-import { Plus, LogOut, Car, BarChart3, Menu, X } from 'lucide-react';
+import { Plus, LogOut, Car, BarChart3, Menu, X, Package } from 'lucide-react';
 import MotorCard from './MotorCard';
 import AddMotorModal from './AddMotorModal';
+
 
 const HomePage: React.FC = () => {
   const router = useRouter();
@@ -116,6 +117,14 @@ const HomePage: React.FC = () => {
                   <span className="font-medium">Summary</span>
                 </button>
                 <button
+                  onClick={() => router.push('/inventory')}
+                  className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2.5 rounded-xl hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  <Package className="w-5 h-5" />
+                  <span className="font-medium">Inventory</span>
+                </button>
+
+                <button
                   onClick={() => setShowAddModal(true)}
                   className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2.5 rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                 >
@@ -161,6 +170,17 @@ const HomePage: React.FC = () => {
                   <BarChart3 className="w-5 h-5" />
                   <span className="font-medium">Summary</span>
                 </button>
+                <button
+                  onClick={() => {
+                    router.push('/inventory');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-3 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-lg"
+                >
+                  <Package className="w-5 h-5" />
+                  <span className="font-medium">Inventory</span>
+                </button>
+
                 <button
                   onClick={() => {
                     setShowAddModal(true);
@@ -212,7 +232,7 @@ const HomePage: React.FC = () => {
               onChange={(e) => setFilterStatus(e.target.value as "all" | "in_progress" | "listing" | "sold")}
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 hover:bg-white transition-all duration-200"
             >
-              <option value="all">All Statuses</option>
+              <option value="all">All Status</option>
               <option value="in_progress">In Progress</option>
               <option value="listing">Listed</option>
               <option value="sold">Sold</option>
@@ -256,6 +276,14 @@ const HomePage: React.FC = () => {
               <BarChart3 className="w-5 h-5" />
               <span className="font-medium">Summary</span>
             </button>
+            <button
+              onClick={() => router.push('/inventory')}
+              className="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-3 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-lg"
+            >
+              <Package className="w-5 h-5" />
+              <span className="font-medium">Inventory</span>
+            </button>
+
             <button
               onClick={() => setShowAddModal(true)}
               className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg"
